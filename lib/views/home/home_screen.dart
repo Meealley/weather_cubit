@@ -15,7 +15,7 @@ class _WeatherScreeenState extends State<WeatherScreeen> {
       appBar: AppBar(
         title: Text(
           "Weather for today",
-          style: AppTextStyles.bodyText,
+          style: AppTextStyles.heading,
         ),
       ),
       body: Center(
