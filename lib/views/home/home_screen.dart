@@ -14,7 +14,7 @@ class _WeatherScreeenState extends State<WeatherScreeen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Weather for today",
+          "Weather for today in Nigeria",
           style: AppTextStyles.heading,
         ),
       ),
