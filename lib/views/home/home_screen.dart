@@ -1,15 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:weather_app/cubits/weather/weather_cubit.dart';
+import 'package:weather_app/repository/weather_repository.dart';
+import 'package:weather_app/services/weather_api.dart';
 import 'package:weather_app/utils/app_textstyle.dart';
+import 'package:http/http.dart' as http;
 
 class WeatherScreeen extends StatefulWidget {
-  const WeatherScreeen({super.key});
+  final String cityName;
+  const WeatherScreeen({super.key, required this.cityName});
 
   @override
   State<WeatherScreeen> createState() => _WeatherScreeenState();
 }
 
 class _WeatherScreeenState extends State<WeatherScreeen> {
+  // @override
+  // void initState() {
+  //   // TODO: implement initState
+  //   super.initState();
+  //   _fetchWeather();
+  // }
+
+  // void _fetchWeather() {
+  //   context.read<WeatherCubit>().fetchWeather(widget.cityName);
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,7 +38,7 @@ class _WeatherScreeenState extends State<WeatherScreeen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
-            onPressed: () {
+            onPressed: () async {
               context.push('/search');
               print("search appbar pressed");
             },
@@ -35,11 +52,35 @@ class _WeatherScreeenState extends State<WeatherScreeen> {
           ),
         ],
       ),
-      body: Center(
-        child: Text(
-          "This is the weather app home page",
-          style: AppTextStyles.bodyText,
-        ),
+      body: BlocBuilder<WeatherCubit, WeatherState>(
+        builder: (context, state) {
+          if (state.status == WeatherStatus.loading) {
+            Future.delayed(const Duration(seconds: 3), () {
+              const CircularProgressIndicator.adaptive();
+            });
+          }
+
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Center(
+                  child: Text(
+                    "This is the weather app ${widget.cityName}",
+                    style: AppTextStyles.bodyText,
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  state.weather.name,
+                  style: AppTextStyles.bodyTextBold,
+                )
+              ],
+            ),
+          );
+        },
       ),
     );
   }

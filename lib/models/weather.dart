@@ -21,19 +21,36 @@ class Weather extends Equatable {
       required this.country,
       required this.lastupdated});
 
+  // factory Weather.fromJson(Map<String, dynamic> json) {
+  //   final weather = json['weather'][0];
+
+  //   final main = json['main'];
+
+  //   return weather(
+  //     description: weather['description'],
+  //     icon: weather['icon'],
+  //     temp: main['temp'],
+  //     tempMin: main['temp_min'],
+  //     tempMax: main['temp_max'],
+  //     name: "",
+  //     country: "",
+  //     lastupdated: DateTime.now(),
+  //   );
+  // }
+
   factory Weather.fromJson(Map<String, dynamic> json) {
     final weather = json['weather'][0];
-
     final main = json['main'];
 
-    return weather(
+    // Return an instance of Weather class, not a map.
+    return Weather(
       description: weather['description'],
       icon: weather['icon'],
-      temp: main['temp'],
-      tempMin: main['temp_min'],
-      tempMax: main['temp_max'],
-      name: "",
-      country: "",
+      temp: main['temp'].toDouble(),
+      tempMin: main['temp_min'].toDouble(),
+      tempMax: main['temp_max'].toDouble(),
+      name: json['name'] ?? "", // Add checks for null values
+      country: json['sys']['country'] ?? "",
       lastupdated: DateTime.now(),
     );
   }

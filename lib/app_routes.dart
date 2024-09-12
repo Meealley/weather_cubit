@@ -4,13 +4,16 @@ import 'package:weather_app/views/search_page/search_screen.dart';
 import 'package:weather_app/views/settings/settings_screen.dart';
 
 final GoRouter goRoutes = GoRouter(
-  initialLocation: '/home',
+  initialLocation: '/search',
   routes: <RouteBase>[
     GoRoute(
-      path: "/home",
+      path: "/home/:weather",
       name: "/home",
       builder: (context, state) {
-        return const WeatherScreeen();
+        final String cityName = state.pathParameters['weather']!;
+        return WeatherScreeen(
+          cityName: cityName,
+        );
       },
     ),
     GoRoute(
