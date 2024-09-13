@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -21,16 +24,29 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "SearchScreen",
+          "Search City",
           style: AppTextStyles.bodyText,
         ),
       ),
       body: BlocListener<WeatherCubit, WeatherState>(
         listener: (context, state) {
-          // TODO: implement listener
-          if (controller.text.trim().isNotEmpty) {
-            context.pushNamed('/home',
-                pathParameters: {'weather': state.weather.country});
+          if (state.status == WeatherStatus.loaded) {
+            // Navigate to the home screen once the weather data is loaded
+            context.pushNamed(
+              '/home',
+              pathParameters: {
+                'weather': state.weather.description
+              }, // Use city name
+            );
+          } else if (state.status == WeatherStatus.error) {
+            // Show an error message if the city is not found or there's a failure
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text(
+                'Could not fetch weather for this city',
+                style: AppTextStyles.bodyText,
+              )),
+            );
           }
         },
         child: BlocBuilder<WeatherCubit, WeatherState>(
@@ -45,18 +61,52 @@ class _SearchScreenState extends State<SearchScreen> {
                     textEditingControlle: controller,
                     labelText: "Enter your city",
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
                   ButtonPress(
-                    text: "Where is your city?",
+                    text: "Search Weather",
                     onPressed: () {
-                      context
-                          .read<WeatherCubit>()
-                          .fetchWeather(controller.text);
+                      final city = controller.text.trim();
+                      if (city.isNotEmpty) {
+                        context.read<WeatherCubit>().fetchWeather(city);
+                      } else {
+                        if (Platform.isIOS) {
+                          showCupertinoDialog(
+                              context: context,
+                              builder: (context) {
+                                return CupertinoAlertDialog(
+                                  title: Text(
+                                    "Error",
+                                    style: AppTextStyles.bodyText,
+                                  ),
+                                  content: Text(
+                                    'Please enter a valid city name',
+                                    style: AppTextStyles.bodySmall,
+                                  ),
+                                  actions: [
+                                    CupertinoDialogAction(
+                                      child: Text(
+                                        "Ok",
+                                        style: AppTextStyles.bodyText,
+                                      ),
+                                      onPressed: () => context.pop(),
+                                    )
+                                  ],
+                                );
+                              });
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(
+                              'Please enter a valid city name',
+                              style: AppTextStyles.bodyText,
+                            )),
+                          );
+                        }
+
+                        // Show error message if input is empty
+                      }
                     },
                   ),
-                  // Center(child: Text("Search Screen", style: AppTextStyles.bodyText))
                 ],
               ),
             );
