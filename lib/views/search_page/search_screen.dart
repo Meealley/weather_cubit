@@ -40,13 +40,39 @@ class _SearchScreenState extends State<SearchScreen> {
             );
           } else if (state.status == WeatherStatus.error) {
             // Show an error message if the city is not found or there's a failure
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  content: Text(
-                'Could not fetch weather for this city',
-                style: AppTextStyles.bodyText,
-              )),
-            );
+            if (Platform.isIOS) {
+              showCupertinoDialog(
+                  context: context,
+                  builder: (context) {
+                    return CupertinoAlertDialog(
+                      title: Text(
+                        "Error",
+                        style: AppTextStyles.bodyText,
+                      ),
+                      content: Text(
+                        'City not found',
+                        style: AppTextStyles.bodySmall,
+                      ),
+                      actions: [
+                        CupertinoDialogAction(
+                          child: Text(
+                            "Ok",
+                            style: AppTextStyles.bodyText,
+                          ),
+                          onPressed: () => context.pop(),
+                        )
+                      ],
+                    );
+                  });
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content: Text(
+                  'Please enter a valid city name',
+                  style: AppTextStyles.bodyText,
+                )),
+              );
+            }
           }
         },
         child: BlocBuilder<WeatherCubit, WeatherState>(
@@ -63,7 +89,9 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                   const SizedBox(height: 10),
                   ButtonPress(
-                    text: "Search Weather",
+                    text: state.status == WeatherStatus.loading
+                        ? "Loadiing..."
+                        : "Search Weather",
                     onPressed: () {
                       final city = controller.text.trim();
                       if (city.isNotEmpty) {
